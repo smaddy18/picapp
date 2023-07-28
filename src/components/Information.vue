@@ -8,15 +8,17 @@
             color="#008CDB"
             rounded="xl"
             elevation="14"
+            :height="80"
             v-bind="props"
             @click="toggleShowInfoModal">
-                <v-icon
-                color="white"
-                icon="mdi-information"
-                size="35"
-                class="mb-12"></v-icon>
+                <div class="mt-2">
+                    <v-icon
+                    color="white"
+                    icon="mdi-information"
+                    size="35"></v-icon>
 
-                <p class="text-h6 text-grey-lighten-2">Note d'information</p>
+                    <span class="text-h6 text-grey-lighten-2"> Guide d'utilisation</span>
+                </div>
             </v-sheet>
         </template>
 
@@ -47,6 +49,7 @@ export default {
                 {name: "Assurez-vous de tourner dans le sens anti-horaire -> vers votre gauche", id:"3"},
                 {name: "Les Images sont alors prises chaque 20°, chose que vous pouvez changer dans LES REGLAGES", id:"4"},
                 {name: "Remplir obligatoirement les champs de la section DIMENSIONS DE LA PIECE", id:"5"},
+                {name: "Si vous rencontrez un dysfonctionnement dans l'applications, contactez moi par email : smaddy.kouame@gmail.com", id:"6"},
             ]
         }
     },

@@ -9,15 +9,17 @@
             color="#7A00DB"
             rounded="xl"
             elevation="14"
+            :height="80"
             v-bind="props"
             @click="showDimModal">
-                <v-icon
-                color="white"
-                icon="mdi-ruler-square"
-                size="35"
-                class="mb-12"></v-icon>
+                <div class="mt-2">
+                    <v-icon
+                    color="white"
+                    icon="mdi-ruler-square"
+                    size="35"></v-icon>
 
-                <p class="text-h6 text-grey-lighten-2">Dimensions de la pièce</p>
+                    <span class="text-h6 text-grey-lighten-2"> Dimensions de la pièce</span>
+                </div>
             </v-sheet>
         </template>
 

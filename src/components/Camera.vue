@@ -12,60 +12,76 @@
             color="#DB004F"
             rounded="xl"
             elevation="14"
+            :height="80"
             v-bind="props"
             @click="showCameraModal">
-                <v-icon
-                color="white"
-                icon="mdi-camera"
-                size="35"
-                class="mb-12"></v-icon>
+                <div class="mt-2">
+                    <v-icon
+                    color="white"
+                    icon="mdi-camera"
+                    size="35"></v-icon>
 
-                <p class="text-h6 text-grey-lighten-2">Lancer un enregistrement</p>
+                    <span class="text-h6 text-grey-lighten-2"> Lancer un enregistrement</span>
+                </div>
             </v-sheet>
         </template>
 
-        <v-sheet color="#E0E0E0" class="pa-2 text-center" rounded>
+        <v-sheet color="#E0E0E0" class="text-center" rounded>
             <div class="myContainer">
                 <div class="myContainer__toolbar">
                     <v-toolbar
                     dark
-                    color="primary">
-                        <v-btn icon dark @click="closeCameraModal">
+                    color="rgba(217, 217, 217, 0.0)">
+                        <v-btn icon class="close__btn" dark @click="closeCameraModal">
                             <v-icon>mdi-close</v-icon>
                         </v-btn>
                         <v-spacer></v-spacer>
-                        <v-toolbar-items>
-                            <v-btn variant="text" @click="savePhoto">
-                                Sauvegarder
-                            </v-btn>
-                        </v-toolbar-items>
+                        <div class="text-center mr-3 text-grey-darken-2">
+                            <p class="caption">Alpha: {{ computedCurrentAlpha }} - Beta: {{ beta }} - Gamma: {{ gamma }}</p>
+                        </div>
                     </v-toolbar>
                 </div>
-                <div class="mt-2 myContainer__video">
-                    <p class="text-h6">Alpha: {{ alpha }} - Beta: {{ beta }} - Gamma: {{ gamma }}</p>
+                <div class="direction_arrows d-flex justify-space-between px-3">
+                    <div>
+                        <v-btn icon class="direction_arrows--left" v-if="shootingDirection === 'left' || shootingDirection === ''">
+                            <v-icon>mdi-arrow-left-circle-outline</v-icon>
+                        </v-btn>
+                    </div>
+                    <div>
+                        <v-btn icon class="direction_arrows--right" v-if="shootingDirection === 'right' || shootingDirection === ''">
+                            <v-icon>mdi-arrow-right-circle-outline</v-icon>
+                        </v-btn>
+                    </div>
+                </div>
+                <div class="myContainer__video">
+                    <!-- <p class="text-h6">Alpha: {{ alpha }} - Beta: {{ beta }} - Gamma: {{ gamma }}</p>
                     <p class="text-h6">ComputedCurrentAlpha: {{ computedCurrentAlpha }} - ComputedPrevAlpha: {{ computedPrevAlpha }}</p>
                     <p class="text-h6">Photo array len: {{ photoArray.length }}</p>
-                    <p class="text-h6">Shoot direction: {{ shootingDirection }}</p>
+                    <p class="text-h6">Shoot direction: {{ shootingDirection }}</p> -->
                     <video
                     autoplay
                     playsInline
                     ref="videoPlayer"
                     class="mt-0"></video>
                 </div>
-                <v-row v-if="!isShootingStarted">
-                    <v-col>
-                        <v-btn
-                        block
-                        size="large"
-                        color="green"
-                        variant="elevated"
-                        :disabled="!readyForShooting"
-                        @click="handleShootingStart">
-                            Commencer
-                        </v-btn>
-                    </v-col>
-                </v-row>
-                <canvas id="canvas" ref="canvas"></canvas>
+                <div class="button__div">
+                    <v-row v-if="!isShootingStarted">
+                        <v-col>
+                            <v-btn
+                            icon="mdi-calendar"
+                            size="5rem"
+                            color="rgba(97, 97, 97, 0.7)"
+                            class="text-white"
+                            variant="elevated"
+                            :disabled="!readyForShooting"
+                            @click="handleShootingStart">
+                                Auto
+                            </v-btn>
+                        </v-col>
+                    </v-row>
+                </div>
+                <canvas id="preview-canvas" ref="canvas"></canvas>
+                <!-- <canvas id="canvas" ref="canvas"></canvas> -->
             </div>
         </v-sheet>
     </v-dialog>
@@ -86,31 +102,25 @@
     const width = 320
     let height = 0  // à calculer automatiquement en fonction de la largeur du flux entrant
     let hasPhoto = false
+    let streaming = false
 
     const photoArray = ref([])
 
 
     /**-------METHODS------- */
     const showCameraModal = () => {
-        /*DeviceOrientationEvent.requestPermission()
-        .then((permission) => {
-            if(permission === 'granted'){
-                //alert('konan fabrice : permission : '+ permission)
-                window.addEventListener('deviceorientation', handleOrientationEvent, false);
-            }else{
-                //output.textContent = "konan fabrice : The user denied permission";
-                //this.outputContainer.textContent = "konan fabrice : The user denied permission";
-                alert('konan fabrice : The user denied permission')
-            }
-        }).catch(console.error)*/
-
-
-        cameraModal.value = true
-        getVideo()
-        requestOrientation()
+        if(props.isDimDataSet===true){
+            cameraModal.value = true
+            getVideo()
+            requestOrientation()
+        }else{
+            emit('onDimDataNotSet')
+            closeCameraModal()
+        }
     }
     const closeCameraModal = () => {
         cameraModal.value = false
+        //streaming = false
     }
     const savePhoto = () => {
         emit('onShootingEnded', photoArray.value)
@@ -120,7 +130,8 @@
     const getVideo = () => {
         //const width = 320
         //let height = 0 // à calculer automatiquement en fonction de la largeur du flux entrant
-        let streaming = false
+        // let streaming = false
+        // alert("Test de la taille1 : w : "+width+ "h : " +height)
 
         // Vérifie si le navigateur prend en charge les médias
         navigator.mediaDevices
@@ -136,13 +147,19 @@
                 'canplay',
                 (ev) => {
                     if (!streaming) {
-                    height = (video.videoHeight / video.videoWidth) * width;
 
-                    video.setAttribute("width", width);
-                    video.setAttribute("height", height);
-                    canvas.value.setAttribute("width", width);
-                    canvas.value.setAttribute("height", height);
-                    streaming = true;
+                        if(video.videoHeight > video.videoWidth){
+                            height = (video.videoHeight / video.videoWidth) * width;
+                        }else{
+                            height = (video.videoWidth / video.videoHeight) * width;
+                        }
+                        // alert("Test de la taille1 : w : "+width+ " h : " +height+ "\nvh: "+video.videoHeight+ " vw: "+video.videoWidth)
+
+                        video.setAttribute("width", width);
+                        video.setAttribute("height", height);
+                        canvas.value.setAttribute("width", width);
+                        canvas.value.setAttribute("height", height);
+                        streaming = true;
                     }
                 },
                 false
@@ -199,7 +216,10 @@
     let makeCapture = false
     let readyForShooting = ref(false)
     let shootingDirection = ref("")
-    const emit = defineEmits(['onShootingEnded'])
+    const emit = defineEmits(['onShootingEnded, onDimDataNotSet'])
+    const props = defineProps({
+        isDimDataSet: Boolean
+    })
 
     const handleOrientationEvent = (event) => {
         //alert('konan fabrice : In handleOrientationEvent function. Alpha : '+ Math.floor(event.alpha, 2))
@@ -277,10 +297,13 @@
             computedPrevAlpha.value = 0
             isShootingStarted = false
             isShootingEnded = true
-            shootingDirection = ""
-            //photoArray.value = []
+            shootingDirection.value = ""
             currentAlpha = 0
             prevAlpha = 0
+            isShootingAlreadyStarted = false
+
+            // Enregistrement de la photo
+            savePhoto()
         }
     }
 
@@ -292,31 +315,74 @@
 </script>
 
 <style scoped>
-    /* .myContainer{
+    .myContainer{
         position: relative;
-    } */
-    .myContainer__video{
         width: 100%;
         height: 100%;
-        /* position: absolute; */
-        background-color: red;
+    }
+    .myContainer__video{
+        position: fixed;
+        width: 100%;
+        height: 100%;
         z-index: 0;
     }
     .myContainer__toolbar{
-        /* position: absolute; */
+        position: absolute;
         width: 100%;
         z-index: 2;
     }
 
-    video{
-        border: 1px solid black;
-        box-shadow: 5px 5px 3px black;
+    .direction_arrows{
+        position: absolute;
+        top: 50%;
+        z-index: 2;
         width: 100%;
-        height: 100%;
-        object-fit: cover;
     }
 
-    /*#canvas{
+    .direction_arrows--left, .direction_arrows--right{
+        background-color: rgba(97, 97, 97, 0.3);
+        color: white;
+    }
+
+    video{
+        width: 100%;
+        height: 100%;
+        object-fit: fill;
+    }
+
+    .close__btn{
+        background-color: rgba(97, 97, 97, 0.3);
+        color: white;
+    }
+
+    .button__div{
+        position: absolute;
+        bottom: 0px;
+        z-index: 3;
+        width: 100%;
+        height: 8rem;
+    }
+
+    #canvas{
         display: none;
-    }*/
+    }
+
+    #preview-canvas{
+        /* background-color: cyan; */
+        position: absolute;
+        z-index: 2;
+        bottom: 0px;
+        left: 0px;
+        width: 7rem;
+        height: 7rem;
+        margin-left: 2px;
+        margin-bottom: 2px;
+        background-image: linear-gradient(
+            to bottom,
+            rgba(230, 230, 230, 0.5),
+            rgba(51, 51, 51, 0.5)
+        ), url("../assets/image_icon.png");
+        background-repeat: no-repeat;
+        background-position: center;
+    }
 </style>
