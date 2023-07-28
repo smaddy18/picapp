@@ -242,7 +242,7 @@
                 currentAlpha = alpha.value
                 prevAlpha = alpha.value
                 isShootingAlreadyStarted = true
-                alert('initialA : ' +initialAlpha+ '\ncurrentA : '+currentAlpha+'\nprevA : '+prevAlpha)
+                // alert('initialA : ' +initialAlpha+ '\ncurrentA : '+currentAlpha+'\nprevA : '+prevAlpha)
             }else{
                 currentAlpha = alpha.value
             }
