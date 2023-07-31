@@ -122,7 +122,7 @@ export default {
 			// alert("Data to send len : " +Object.keys(data).length)
 
 			axios
-			.post('https://192.168.0.12:8000/roompic/upload/', data)
+			.post('https://picapp-api-20.vercel.app/roompic/upload/', data)
 			.then(response => {
 				// alert("Données enregistrées avec succès")
 				console.log('Response : '+ response)
