@@ -127,7 +127,7 @@ export default {
             setTimeout(() => {
                 this.loading = false
                 const data = {
-                    registrationNo : Date(),
+                    registrationDate : Date(),
                     length: this.length,
                     width: this.width,
                     height: this.height

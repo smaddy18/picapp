@@ -54,10 +54,6 @@
                     </div>
                 </div>
                 <div class="myContainer__video">
-                    <!-- <p class="text-h6">Alpha: {{ alpha }} - Beta: {{ beta }} - Gamma: {{ gamma }}</p>
-                    <p class="text-h6">ComputedCurrentAlpha: {{ computedCurrentAlpha }} - ComputedPrevAlpha: {{ computedPrevAlpha }}</p>
-                    <p class="text-h6">Photo array len: {{ photoArray.length }}</p>
-                    <p class="text-h6">Shoot direction: {{ shootingDirection }}</p> -->
                     <video
                     autoplay
                     playsInline
@@ -128,10 +124,6 @@
         cameraModal.value = false
     }
     const getVideo = () => {
-        //const width = 320
-        //let height = 0 // à calculer automatiquement en fonction de la largeur du flux entrant
-        // let streaming = false
-        // alert("Test de la taille1 : w : "+width+ "h : " +height)
 
         // Vérifie si le navigateur prend en charge les médias
         navigator.mediaDevices
@@ -153,7 +145,6 @@
                         }else{
                             height = (video.videoWidth / video.videoHeight) * width;
                         }
-                        // alert("Test de la taille1 : w : "+width+ " h : " +height+ "\nvh: "+video.videoHeight+ " vw: "+video.videoWidth)
 
                         video.setAttribute("width", width);
                         video.setAttribute("height", height);
@@ -285,9 +276,9 @@
         }
 
         //const LEFT_END = computedCurrentAlpha.value === 359 && shootingDirection.value === "left" && computedPrevAlpha >= 340
-        const LEFT_END = computedCurrentAlpha.value === 359 && shootingDirection.value === "left"
+        const LEFT_END = computedCurrentAlpha.value >= 357 && shootingDirection.value === "left"
         //const RIGHT_END = computedCurrentAlpha.value === 1 && shootingDirection.value === "right" && computedPrevAlpha <= 20
-        const RIGHT_END = computedCurrentAlpha.value === 1 && shootingDirection.value === "right"
+        const RIGHT_END = computedCurrentAlpha.value <= 3 && shootingDirection.value === "right"
         
         if((LEFT_END || RIGHT_END) && !isShootingEnded){ // Shooting ended
             alert("Enregistrement terminé")

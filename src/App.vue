@@ -17,8 +17,6 @@
 				<h1 class="text-h5 text-white">Bienvenue sur <span class="font-weight-bold text-">Room Scan</span></h1>
 				<p class="mt-4 text-subtitle-1 text-grey-lighten-2">Pour commencer, renseigner les différentes informations demandées plus bas</p>
 
-				<!-- <p class="text-h6">Room imensions: {{ Object.keys(roomDimensions).length }}</p>
-				<p class="text-h6">Photo array len: {{ photos.length }}</p> -->
 
 				<v-row class="my-4">
 					<v-col cols="12">
@@ -95,6 +93,9 @@ export default {
 	},
 	methods: {
 		handleFormValidated(data){
+			data.height = parseFloat(data.height)
+			data.width = parseFloat(data.width)
+			data.length = parseFloat(data.length)
 			console.log(data)
 			this.roomDimensions = {...data}
 			this.isDimensionDataSet = true
@@ -102,9 +103,10 @@ export default {
 		},
 		handleShootingEnded(photoArray){
 			this.photos = [...photoArray]
+			alert("photo len : " +this.photos.length)
 			this.sendDataToAPI()
 			this.snackbar = true
-			// alert("photo len : " +photoArray.length)
+			this.isDimensionDataSet = false
 		},
 		handleSettingValidated(data){
 			this.photoInterval = data
@@ -115,13 +117,14 @@ export default {
 		},
 
 		sendDataToAPI () {
-            // Préparez les données à envoyer à l'API, y compris la photo et les autres informations
+			// Préparez les données à envoyer à l'API, y compris la photo et les autres informations
             const data = {...this.roomDimensions, images : this.photos}
+			// alert("Data to send len : " +Object.keys(data).length)
 
 			axios
-			.post('https://picapp-api-3.vercel.app/roompic/upload/', data)
+			.post('https://192.168.0.12:8000/roompic/upload/', data)
 			.then(response => {
-				alert("Données enregistrées avec succès")
+				// alert("Données enregistrées avec succès")
 				console.log('Response : '+ response)
 			})
 			.catch(error => {
